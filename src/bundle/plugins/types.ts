@@ -1,3 +1,3 @@
 import * as esbuild from 'esbuild'
 
-export type PluginFactory = (args?: any) => esbuild.Plugin
+export type PluginFactory = (...args: any[]) => esbuild.Plugin

@@ -4,7 +4,10 @@ type VituralFile = {
   [key: string]: string
 }
 
-const VituralFilePlugin: PluginFactory = (vituralFile: VituralFile) => ({
+const VituralFilePlugin: PluginFactory = (
+  vituralFile: VituralFile,
+  resolveDir: string
+) => ({
   name: 'vitural-file',
   setup(build) {
     build.onResolve({ filter: /.*/ }, (args) => {
@@ -43,6 +46,7 @@ const VituralFilePlugin: PluginFactory = (vituralFile: VituralFile) => ({
 
       return {
         contents: vituralFile[args.path],
+        resolveDir,
         loader: 'js',
       }
     })
