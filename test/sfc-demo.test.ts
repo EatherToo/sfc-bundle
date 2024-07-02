@@ -1,5 +1,5 @@
-import fs = require('fs')
-import path = require('path')
+import path from 'path'
+import fs from 'fs'
 import { buildVue } from '../src/build'
 
 describe('Dummy test', () => {

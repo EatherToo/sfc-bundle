@@ -1,11 +1,11 @@
 import * as compiler from 'vue/compiler-sfc'
-import path = require('path')
+import path from 'path'
 import { build } from 'esbuild'
 import VituralFilePlugin from './bundle/plugins/vituralFile'
 import FileFilterPlugin from './bundle/plugins/fileFilter'
 import { Component, createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-import fs = require('fs')
+import fs from 'fs'
 
 namespace global {
   export let TempApp: { __app__: Component | undefined }
