@@ -11,6 +11,7 @@ const VituralFilePlugin: PluginFactory = (
   name: 'vitural-file',
   setup(build) {
     build.onResolve({ filter: /.*/ }, (args) => {
+      console.log(1)
       if (vituralFile[args.path]) {
         return {
           path: args.path,
@@ -20,6 +21,7 @@ const VituralFilePlugin: PluginFactory = (
     })
 
     build.onLoad({ filter: /.*/, namespace: 'vitural-file' }, (args) => {
+      console.log(2)
       if (args.path.endsWith('.css')) {
         const stylesName =
           args.path.split('.').slice(0, -1).join('_').replace(':', '_') +
@@ -41,6 +43,14 @@ const VituralFilePlugin: PluginFactory = (
         return {
           contents,
           loader: 'js',
+        }
+      }
+
+      if (args.path.endsWith('.ts')) {
+        return {
+          contents: vituralFile[args.path],
+          resolveDir,
+          loader: 'ts',
         }
       }
 

@@ -1,4 +1,3 @@
-import * as esbuild from 'esbuild'
 import path from 'path'
 import { PluginFactory } from './types'
 

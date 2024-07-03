@@ -4,6 +4,7 @@ specifiers:
   '@babel/core': ^7.23.3
   '@babel/parser': ^7.23.3
   '@babel/traverse': ^7.23.3
+  '@iconify/vue': ^4.1.2
   '@jest/globals': ^29.7.0
   '@rollup/plugin-commonjs': ^26.0.1
   '@rollup/plugin-node-resolve': ^15.2.3
@@ -25,14 +26,17 @@ specifiers:
   tslib: ^2.6.3
   typescript: ^5.2.2
   vue: ^3.3.8
+  vue-tweet: ^2.3.1
 
 dependencies:
   '@babel/core': 7.23.3
   '@babel/parser': 7.23.3
   '@babel/traverse': 7.23.3
+  '@iconify/vue': 4.1.2_vue@3.3.8
   esbuild: 0.19.5
   rollup: 4.18.0
   vue: 3.3.8_typescript@5.2.2
+  vue-tweet: 2.3.1_vue@3.3.8
 
 devDependencies:
   '@jest/globals': 29.7.0
@@ -576,6 +580,19 @@ packages:
     os: [win32]
     requiresBuild: true
     optional: true
+
+  /@iconify/types/2.0.0:
+    resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
+    dev: false
+
+  /@iconify/vue/4.1.2_vue@3.3.8:
+    resolution: {integrity: sha512-CQnYqLiQD5LOAaXhBrmj1mdL2/NCJvwcC4jtW2Z8ukhThiFkLDkutarTOV2trfc9EXqUqRs0KqXOL9pZ/IyysA==}
+    peerDependencies:
+      vue: '>=3'
+    dependencies:
+      '@iconify/types': 2.0.0
+      vue: 3.3.8_typescript@5.2.2
+    dev: false
 
   /@isaacs/cliui/8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -3819,6 +3836,14 @@ packages:
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
     dev: true
+
+  /vue-tweet/2.3.1_vue@3.3.8:
+    resolution: {integrity: sha512-n8dKawDjEkNk4pkoiETGjB9s0OIT51i37zcgkrf2JnVx0NLGvLYesedVz3UHG7krAPGjGQ7pm1QZkTJC2oGs6w==}
+    peerDependencies:
+      vue: ^3.4.27
+    dependencies:
+      vue: 3.3.8_typescript@5.2.2
+    dev: false
 
   /vue/3.3.8_typescript@5.2.2:
     resolution: {integrity: sha512-5VSX/3DabBikOXMsxzlW8JyfeLKlG9mzqnWgLQLty88vdZL7ZJgrdgBOmrArwxiLtmS+lNNpPcBYqrhE6TQW5w==}

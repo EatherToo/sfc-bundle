@@ -9,7 +9,7 @@ import progress from 'rollup-plugin-progress'
 
 export default [
   {
-    input: 'src/build.ts',
+    input: 'src/index.ts',
     output: [
       {
         dir: 'dist/cjs',
@@ -23,6 +23,7 @@ export default [
         // sourcemap: true,
       },
     ],
+    external: ['esbuild'],
     plugins: [
       external(),
       resolve(),
@@ -30,12 +31,20 @@ export default [
       typescript({ tsconfig: './tsconfig.json' }),
       postcss(),
       terser(),
-      progress(),
+      progress({
+        clearLine: false,
+      }),
     ],
   },
   {
-    input: ['src/build.ts'],
+    input: ['src/index.ts'],
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],
-    plugins: [rollupPluginDts.default()],
+    plugins: [
+      rollupPluginDts.default({
+        compilerOptions: {
+          preserveSymlinks: false,
+        },
+      }),
+    ],
   },
 ]

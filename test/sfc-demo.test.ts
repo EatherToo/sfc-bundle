@@ -1,6 +1,8 @@
 import path from 'path'
 import fs from 'fs'
 import { buildVue } from '../src/build'
+import { Icon } from '@iconify/vue'
+import Tweet from 'vue-tweet'
 
 describe('Dummy test', () => {
   it('test parse', async () => {
@@ -8,6 +10,14 @@ describe('Dummy test', () => {
       path.resolve(__dirname, './demo.vue'),
       'utf-8'
     )
-    console.log(await buildVue(source, 'demo.vue'))
+    await buildVue({
+      source,
+      filename: 'demo.vue',
+      resolveDir: __dirname,
+      components: {
+        Icon,
+        Tweet,
+      },
+    })
   })
 })

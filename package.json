@@ -1,10 +1,14 @@
 {
-  "name": "vue-sfc-demo",
+  "name": "sfc-bundle",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "rollup -c --bundleConfigAsCjs",
+    "dev": "rollup -c --bundleConfigAsCjs -w"
   },
   "keywords": [],
   "author": "",
@@ -13,9 +17,11 @@
     "@babel/core": "^7.23.3",
     "@babel/parser": "^7.23.3",
     "@babel/traverse": "^7.23.3",
+    "@iconify/vue": "^4.1.2",
     "esbuild": "^0.19.5",
     "rollup": "^4.18.0",
-    "vue": "^3.3.8"
+    "vue": "^3.3.8",
+    "vue-tweet": "^2.3.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",

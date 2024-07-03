@@ -3,15 +3,27 @@ import path from 'path'
 import { build } from 'esbuild'
 import VituralFilePlugin from './bundle/plugins/vituralFile'
 import FileFilterPlugin from './bundle/plugins/fileFilter'
-import { Component, createSSRApp } from 'vue'
+import { type Component, createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import fs from 'fs'
 
-namespace global {
-  export let TempApp: { __app__: Component | undefined }
+type BuildOptions = {
+  source: string
+  filename: string
+  resolveDir?: string
+  dependencies?: {
+    [key: string]: string
+  }
+  components?: Record<string, Component>
 }
 
-export async function buildVue(source: string, filename: string) {
+export async function buildVue({
+  source,
+  filename,
+  resolveDir,
+  dependencies,
+  components,
+}: BuildOptions) {
   const parsedSrc = compiler.parse(source)
   const compiledScript = compiler.compileScript(parsedSrc.descriptor, {
     id: filename,
@@ -34,53 +46,30 @@ export async function buildVue(source: string, filename: string) {
 
   const vituralFile: {
     [key: string]: string
-  } = {}
-  vituralFile[`vitural:${filename}.script.js`] = compiledScript.content
-  vituralFile[`vitural:${filename}.template.js`] = compiledTemplate.code
+  } = dependencies || {}
+  vituralFile[`vitural:${filename}.script.${compiledScript.lang}`] =
+    compiledScript.content
+  vituralFile[`vitural:${filename}.template.${compiledScript.lang}`] =
+    compiledTemplate.code
   vituralFile[`vitural:${filename}.style.css`] = compliedStyle.code
-  global.TempApp = {
-    __app__: undefined,
-  }
 
-  const buildServerRes = await build({
-    stdin: {
-      contents: `
-      import { createSSRApp } from 'vue'
-      import appComp from 'vitural:${filename}.script.js'
-      import { render } from 'vitural:${filename}.template.js'
-      // import 'vitural:${filename}.style.css'    
-
-      const __sfc__ = appComp
-
-      __sfc__.render = render
-      global.TempApp.__app__ = __sfc__
-      `,
-      resolveDir: path.resolve(__dirname, '../'),
-      sourcefile: filename,
-    },
-
-    plugins: [VituralFilePlugin(vituralFile), FileFilterPlugin()],
-    format: 'iife',
-    platform: 'node',
-    target: ['node14'],
-    loader: {
-      '.css': 'css',
-    },
-    bundle: true,
-    write: false,
-    // outfile: path.resolve(__dirname, '../dist/server.js'),
+  const app = createSSRApp({
+    setup: () => ({
+      shopInfo: {
+        name: 'shop name',
+      },
+    }),
+    template: parsedSrc.descriptor.template?.content,
+    components,
   })
 
-  eval(buildServerRes.outputFiles[0].text)
-  const app = createSSRApp(global.TempApp.__app__!)
-  delete global.TempApp.__app__
   const htmlString = await renderToString(app)
   const buildClientsRes = await build({
     stdin: {
       contents: `
       import { createSSRApp } from 'vue'
-      import appComp from 'vitural:${filename}.script.js'
-      import { render } from 'vitural:${filename}.template.js'
+      import appComp from 'vitural:${filename}.script.${compiledScript.lang}'
+      import { render } from 'vitural:${filename}.template.${compiledScript.lang}'
       import 'vitural:${filename}.style.css'    
 
       const __sfc__ = appComp
@@ -90,10 +79,11 @@ export async function buildVue(source: string, filename: string) {
       app.mount('#app')
 
       `,
-      resolveDir: path.resolve(__dirname, '../'),
+      resolveDir,
       sourcefile: filename,
     },
-    plugins: [VituralFilePlugin(vituralFile, path.resolve(__dirname, '../'))],
+    plugins: [VituralFilePlugin(vituralFile, resolveDir)],
+    external: ['vue'],
     platform: 'browser',
     target: ['chrome58', 'firefox57', 'safari11'],
     loader: {
@@ -110,20 +100,33 @@ export async function buildVue(source: string, filename: string) {
   <html>
     <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
       <title>Document</title>
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+        }
+      </style>
     </head>
     <body>
       <div id="app">${htmlString}</div>
       <script type="text/javascript">
+      const require = (path) => {
+        if (path === 'vue') {
+          return Vue
+        }
+      }
         ${buildClientsRes.outputFiles[0].text}
       </script>
     </body>
   `
 
   // if dist folder not exist, create it
-  if (!fs.existsSync(path.resolve(__dirname, '../dist'))) {
-    fs.mkdirSync(path.resolve(__dirname, '../dist'))
-  }
+  // if (!fs.existsSync(path.resolve(__dirname, '../dist'))) {
+  //   fs.mkdirSync(path.resolve(__dirname, '../dist'))
+  // }
 
   fs.writeFileSync(path.resolve(__dirname, '../dist/index.html'), html)
   return html
