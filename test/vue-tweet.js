@@ -1,4 +1,4 @@
-export const vueTweet = String.raw`import { defineComponent as h, ref as w, onMounted as y, watch as S, toRef as $, nextTick as E, openBlock as L, createElementBlock as I, Fragment as k, renderSlot as f, createCommentVNode as T, createElementVNode as C, mergeProps as b } from "vue";
+import { defineComponent as h, ref as w, onMounted as y, watch as S, toRef as $, nextTick as E, openBlock as L, createElementBlock as I, Fragment as k, renderSlot as f, createCommentVNode as T, createElementVNode as C, mergeProps as b } from "vue";
 const B = /* @__PURE__ */ h({
   __name: "vue-tweet",
   props: {
@@ -203,4 +203,3 @@ const B = /* @__PURE__ */ h({
 export {
   B as default
 };
-`

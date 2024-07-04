@@ -15,7 +15,31 @@ const ContactIcons: {
 }
 
 const shopInfo: any = {
-  name: 'shop name',
+  name: 'test',
+  description: 'test',
+  contacts: [
+    {
+      type: 'facebook',
+      url: 'test',
+    },
+  ],
+  benefits: ['test'],
+  goods: [
+    {
+      id: 1,
+      name: 'test',
+      img: 'test',
+      price: 100,
+    },
+  ],
+  img: '',
+  show_home_goods_ids: '',
+  posts: [
+    {
+      type: 'twitter',
+      url: 'https://x.com/aestheticspost_/status/1797368981688340786',
+    },
+  ],
 }
 </script>
 <template>

@@ -1,4 +1,4 @@
-export const iconify = String.raw`import { h, defineComponent } from 'vue';
+import { h, defineComponent } from 'vue';
 
 const matchIconName = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const stringToIcon = (value, validate, allowSimpleName, provider = "") => {
@@ -535,7 +535,7 @@ function replaceIDs(body, prefix = randomPrefix) {
   const suffix = "suffix" + (Math.random() * 16777216 | Date.now()).toString(16);
   ids.forEach((id) => {
     const newID = typeof prefix === "function" ? prefix(id) : prefix + (counter++).toString();
-    const escapedID = id.replace(/[.*+?^\${}()|[\]\\]/g, "\\$&");
+    const escapedID = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     body = body.replace(
       // Allowed characters before id: [#;"]
       // Allowed characters after id: [)"], .[a-z]
@@ -1994,4 +1994,3 @@ const _api = {
 };
 
 export { Icon, _api, addAPIProvider, addCollection, addIcon, iconToSVG as buildIcon, calculateSize, disableCache, enableCache, getIcon, iconLoaded as iconExists, iconLoaded, listIcons, loadIcon, loadIcons, replaceIDs };
-`

@@ -1,20 +1,20 @@
 import * as compiler from 'vue/compiler-sfc'
 import path from 'path'
+import fs from 'fs'
 import { build } from 'esbuild'
 import VituralFilePlugin from './bundle/plugins/vituralFile'
-import FileFilterPlugin from './bundle/plugins/fileFilter'
-import { type Component, createSSRApp } from 'vue'
+import { createSSRApp, type Component } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-import fs from 'fs'
+import * as Vue from 'vue'
 
 type BuildOptions = {
   source: string
   filename: string
+  data: any
   resolveDir?: string
   dependencies?: {
     [key: string]: string
   }
-  components?: Record<string, Component>
 }
 
 export async function buildVue({
@@ -22,7 +22,6 @@ export async function buildVue({
   filename,
   resolveDir,
   dependencies,
-  components,
 }: BuildOptions) {
   const parsedSrc = compiler.parse(source)
   const compiledScript = compiler.compileScript(parsedSrc.descriptor, {
@@ -53,17 +52,60 @@ export async function buildVue({
     compiledTemplate.code
   vituralFile[`vitural:${filename}.style.css`] = compliedStyle.code
 
-  const app = createSSRApp({
-    setup: () => ({
-      shopInfo: {
-        name: 'shop name',
-      },
-    }),
-    template: parsedSrc.descriptor.template?.content,
-    components,
+  // const app = createSSRApp({
+  //   setup: () => ({
+  //     ...data,
+  //   }),
+  //   render: compileToFunction(parsedSrc.descriptor.template?.content || '', {
+  //     inSSR: true,
+  //   }),
+  //   components,
+  // })
+
+  // const htmlString = await renderToString(app)
+
+  const buildServerRes = await build({
+    stdin: {
+      contents: `
+      import appComp from 'vitural:${filename}.script.${compiledScript.lang}'
+      import { render } from 'vitural:${filename}.template.${compiledScript.lang}'
+
+      const __sfc__ = appComp
+
+      __sfc__.render = render
+      export default __sfc__
+      `,
+      resolveDir,
+      sourcefile: filename,
+    },
+    external: ['vue'],
+    plugins: [VituralFilePlugin(vituralFile, resolveDir)],
+    globalName: 'buildServerSFC',
+    // minify: true,
+    format: 'iife',
+    bundle: true,
+    write: false,
   })
 
+  const SFC = new Function(
+    'Vue',
+    `
+    function require(path) {
+      if (path === 'vue') {
+        return Vue
+      }
+    }
+    ${buildServerRes.outputFiles[0].text}
+    return buildServerSFC.default
+    `
+  )(Vue)
+
+  const app = createSSRApp(SFC)
+
+  // return
+
   const htmlString = await renderToString(app)
+
   const buildClientsRes = await build({
     stdin: {
       contents: `
@@ -101,7 +143,7 @@ export async function buildVue({
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.min.js"></script>
       <title>Document</title>
       <style>
         * {
@@ -113,11 +155,16 @@ export async function buildVue({
     <body>
       <div id="app">${htmlString}</div>
       <script type="text/javascript">
-      const require = (path) => {
-        if (path === 'vue') {
-          return Vue
-        }
-      }
+
+        if (typeof require === 'undefined') {
+          var require = function(path) {
+            if (path === 'vue') {
+              return Vue
+            }
+          }
+        } 
+
+
         ${buildClientsRes.outputFiles[0].text}
       </script>
     </body>

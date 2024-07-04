@@ -20,7 +20,6 @@ const VituralFilePlugin: PluginFactory = (
     })
 
     build.onLoad({ filter: /.*/, namespace: 'vitural-file' }, (args) => {
-      console.log(args.path)
       if (args.path.endsWith('.css')) {
         const stylesName =
           args.path.split('.').slice(0, -1).join('_').replace(':', '_') +

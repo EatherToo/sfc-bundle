@@ -12,15 +12,13 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        dir: 'dist/cjs',
         format: 'cjs',
-        // sourcemap: true,
         name: 'sfc-bundler',
+        file: 'dist/index.cjs',
       },
       {
-        dir: 'dist/esm',
         format: 'esm',
-        // sourcemap: true,
+        file: 'dist/index.esm.js',
       },
     ],
     external: ['esbuild'],
