@@ -73,7 +73,11 @@ export async function buildVue({
       const __sfc__ = appComp
 
       __sfc__.render = render
-      export default __sfc__
+      
+      const app = createSSRApp(__sfc__)
+
+      const htmlString = renderToString(app)
+      export default htmlString
       `,
       resolveDir,
       sourcefile: filename,
@@ -87,8 +91,10 @@ export async function buildVue({
     write: false,
   })
 
-  const SFC = new Function(
+  const htmlString = await new Function(
     'Vue',
+    'createSSRApp',
+    'renderToString',
     `
     function require(path) {
       if (path === 'vue') {
@@ -98,13 +104,7 @@ export async function buildVue({
     ${buildServerRes.outputFiles[0].text}
     return buildServerSFC.default
     `
-  )(Vue)
-
-  const app = createSSRApp(SFC)
-
-  // return
-
-  const htmlString = await renderToString(app)
+  )(Vue, createSSRApp, renderToString)
 
   const buildClientsRes = await build({
     stdin: {
