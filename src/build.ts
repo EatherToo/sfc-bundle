@@ -37,12 +37,6 @@ export async function buildVue({
     },
   })
 
-  const compliedStyle = compiler.compileStyle({
-    source: parsedSrc.descriptor.styles[0].content,
-    filename,
-    id: filename,
-  })
-
   const vituralFile: {
     [key: string]: string
   } = dependencies || {}
@@ -50,7 +44,8 @@ export async function buildVue({
     compiledScript.content
   vituralFile[`vitural:${filename}.template.${compiledScript.lang}`] =
     compiledTemplate.code
-  vituralFile[`vitural:${filename}.style.css`] = compliedStyle.code
+  vituralFile[`vitural:${filename}.style.css`] =
+    parsedSrc.descriptor.styles[0].content
 
   // const app = createSSRApp({
   //   setup: () => ({
@@ -175,6 +170,6 @@ export async function buildVue({
   //   fs.mkdirSync(path.resolve(__dirname, '../dist'))
   // }
 
-  fs.writeFileSync(path.resolve(__dirname, '../dist/index.html'), html)
+  // fs.writeFileSync(path.resolve(__dirname, '../dist/index.html'), html)
   return html
 }
