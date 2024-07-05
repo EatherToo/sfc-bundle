@@ -182,6 +182,6 @@ export async function buildVue({
   //   fs.mkdirSync(path.resolve(__dirname, '../dist'))
   // }
 
-  fs.writeFileSync(path.resolve(__dirname, '../dist/index.html'), html)
+  // fs.writeFileSync(path.resolve(__dirname, '../dist/index.html'), html)
   return html
 }
