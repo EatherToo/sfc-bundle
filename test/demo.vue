@@ -104,7 +104,7 @@ const shopInfo: any = {
   </div>
 </template>
 <style scoped>
-.home-page {
+#app-box {
   background: radial-gradient(
     108.21% 117.18% at 102.79% 94.58%,
     #ffb8e0,
@@ -112,8 +112,9 @@ const shopInfo: any = {
     #88c0fc 67.4%,
     #86ff99
   );
+}
+.home-page {
   width: 390px;
-  height: 844px;
   overflow: auto;
   font-family: Gopher Display;
   overflow-y: overlay;

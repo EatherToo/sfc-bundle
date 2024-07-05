@@ -137,7 +137,7 @@ export async function buildVue({
   <html>
     <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
       <script src="https://cdn.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.min.js"></script>
       <title>Document</title>
       <style>
@@ -148,7 +148,18 @@ export async function buildVue({
       </style>
     </head>
     <body>
-      <div id="app">${htmlString}</div>
+      <div id="app-box" style="overflow-y: scroll;overflow-x:hidden;"> <div id="app" style="width:390px">${htmlString}</div></div>
+     <script>
+      var devicewidth = document.documentElement.clientWidth
+      var deviceHeight = document.documentElement.clientHeight
+      var appBoxEle = document.getElementById('app-box')
+      appBoxEle.style.width = devicewidth + 'px'
+      appBoxEle.style.height = deviceHeight + 'px'
+      var appEle = document.getElementById('app')
+      var scale = devicewidth / 390
+      appEle.style.transform = 'scale(' + scale + ')'
+      appEle.style.transformOrigin = '0 0'
+      </script>
       <script type="text/javascript">
 
         if (typeof require === 'undefined') {
@@ -162,6 +173,7 @@ export async function buildVue({
 
         ${buildClientsRes.outputFiles[0].text}
       </script>
+      
     </body>
   `
 
@@ -170,6 +182,6 @@ export async function buildVue({
   //   fs.mkdirSync(path.resolve(__dirname, '../dist'))
   // }
 
-  // fs.writeFileSync(path.resolve(__dirname, '../dist/index.html'), html)
+  fs.writeFileSync(path.resolve(__dirname, '../dist/index.html'), html)
   return html
 }
