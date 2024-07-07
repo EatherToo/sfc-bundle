@@ -6,6 +6,7 @@ import VituralFilePlugin from './bundle/plugins/vituralFile'
 import { createSSRApp, type Component } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import * as Vue from 'vue'
+import defaultTemplate from './defaultTemplate'
 
 type BuildOptions = {
   source: string
@@ -15,6 +16,7 @@ type BuildOptions = {
   dependencies?: {
     [key: string]: string
   }
+  template?: (htmlString: string, code: string) => string
 }
 
 export async function buildVue({
@@ -22,6 +24,7 @@ export async function buildVue({
   filename,
   resolveDir,
   dependencies,
+  template,
 }: BuildOptions) {
   const parsedSrc = compiler.parse(source)
   const compiledScript = compiler.compileScript(parsedSrc.descriptor, {
@@ -132,56 +135,8 @@ export async function buildVue({
     // outfile: path.resolve(__dirname, '../dist/client.js'),
   })
 
-  const html = `
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-      <script src="https://cdn.jsdelivr.net/npm/vue@3.4.31/dist/vue.global.min.js"></script>
-      <title>Document</title>
-      <style>
-        * {
-          margin: 0;
-          padding: 0;
-        }
-      </style>
-    </head>
-    <body>
-      <div id="app-box" style="overflow-y: scroll;overflow-x:hidden;"> <div id="app" style="width:390px">${htmlString}</div></div>
-     <script>
-      var devicewidth = document.documentElement.clientWidth
-      var deviceHeight = document.documentElement.clientHeight
-      var appBoxEle = document.getElementById('app-box')
-      appBoxEle.style.width = devicewidth + 'px'
-      appBoxEle.style.height = deviceHeight + 'px'
-      var appEle = document.getElementById('app')
-      var scale = devicewidth / 390
-      appEle.style.transform = 'scale(' + scale + ')'
-      appEle.style.transformOrigin = '0 0'
-      </script>
-      <script type="text/javascript">
+  const templateFn = template || defaultTemplate
 
-        if (typeof require === 'undefined') {
-          var require = function(path) {
-            if (path === 'vue') {
-              return Vue
-            }
-          }
-        } 
-
-
-        ${buildClientsRes.outputFiles[0].text}
-      </script>
-      
-    </body>
-  `
-
-  // if dist folder not exist, create it
-  // if (!fs.existsSync(path.resolve(__dirname, '../dist'))) {
-  //   fs.mkdirSync(path.resolve(__dirname, '../dist'))
-  // }
-
-  // fs.writeFileSync(path.resolve(__dirname, '../dist/index.html'), html)
+  const html = templateFn(htmlString, buildClientsRes.outputFiles[0].text)
   return html
 }
