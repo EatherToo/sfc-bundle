@@ -1,7 +1,6 @@
 import * as compiler from 'vue/compiler-sfc'
 import { build } from 'esbuild'
 import VituralFilePlugin from './bundle/plugins/vituralFile'
-import compressCss from './bundle/utils/cssCompress'
 type BuildSFCToComponentOptions = {
   source: string
   filename?: string
@@ -69,8 +68,19 @@ export async function buildSFCToComponent(options: BuildSFCToComponentOptions) {
     write: false,
   })
 
+  const buildCss = await build({
+    stdin: {
+      contents: vituralFile[`vitural:${filename}.style.css`],
+      sourcefile: `${filename}.style.css`,
+      loader: 'css',
+    },
+    minify: true,
+    bundle: true,
+    write: false,
+  })
+
   return {
     code: buildRes.outputFiles[0].text,
-    css: compressCss(vituralFile[`vitural:${filename}.style.css`]),
+    css: buildCss.outputFiles[0].text,
   }
 }
