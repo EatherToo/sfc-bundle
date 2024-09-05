@@ -5,6 +5,8 @@ type BuildSFCToComponentOptions = {
   source: string
   filename?: string
   cssSplit?: boolean
+  resolveDir?: string
+  absWorkingDir?: string
 }
 export async function buildSFCToComponent(options: BuildSFCToComponentOptions) {
   const { source, cssSplit } = options
@@ -56,9 +58,11 @@ export async function buildSFCToComponent(options: BuildSFCToComponentOptions) {
       `,
 
       sourcefile: filename,
+      resolveDir: options.resolveDir,
     },
     external: ['vue'],
-    plugins: [VituralFilePlugin(vituralFile, __dirname)],
+    plugins: [VituralFilePlugin(vituralFile, options.resolveDir)],
+    absWorkingDir: options.absWorkingDir,
     loader: {
       '.css': 'css',
     },

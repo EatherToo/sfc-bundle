@@ -1,6 +1,6 @@
 {
   "name": "sfc-bundle",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "description": "",
   "main": "dist/index.cjs",
   "module": "dist/index.esm.js",
