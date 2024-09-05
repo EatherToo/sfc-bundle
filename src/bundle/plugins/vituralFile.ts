@@ -6,7 +6,7 @@ type VituralFile = {
 
 const VituralFilePlugin: PluginFactory = (
   vituralFile: VituralFile,
-  resolveDir: string
+  resolveDir?: string
 ) => ({
   name: 'vitural-file',
   setup(build) {

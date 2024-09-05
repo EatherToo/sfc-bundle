@@ -1,6 +1,4 @@
 import * as compiler from 'vue/compiler-sfc'
-import path from 'path'
-import fs from 'fs'
 import { build } from 'esbuild'
 import VituralFilePlugin from './bundle/plugins/vituralFile'
 import { createSSRApp, type Component } from 'vue'
@@ -18,46 +16,27 @@ type BuildOptions = {
   template?: (htmlString: string, code: string) => string
 }
 
-export async function buildVue({
+export async function buildToHtml({
   source,
   filename,
   resolveDir,
   dependencies,
   template,
 }: BuildOptions) {
-  const parsedSrc = compiler.parse(source)
-  const compiledScript = compiler.compileScript(parsedSrc.descriptor, {
-    id: filename,
-  })
-
-  const compiledTemplate = compiler.compileTemplate({
-    source: parsedSrc.descriptor.template?.content || '',
-    filename,
-    id: filename,
-    compilerOptions: {
-      bindingMetadata: compiledScript.bindings,
-    },
-  })
+  if (!resolveDir) {
+    resolveDir = __dirname
+  }
 
   const vituralFile: {
     [key: string]: string
   } = dependencies || {}
-  vituralFile[`vitural:${filename}.script.${compiledScript.lang}`] =
-    compiledScript.content
-  vituralFile[`vitural:${filename}.template.${compiledScript.lang}`] =
-    compiledTemplate.code
-  vituralFile[`vitural:${filename}.style.css`] =
-    parsedSrc.descriptor.styles[0].content
+
+  vituralFile[`vitural:source.js`] = source
 
   const buildServerRes = await build({
     stdin: {
       contents: `
-      import appComp from 'vitural:${filename}.script.${compiledScript.lang}'
-      import { render } from 'vitural:${filename}.template.${compiledScript.lang}'
-
-      const __sfc__ = appComp
-
-      __sfc__.render = render
+      import __sfc__ from 'vitural:source.js'
       
       const app = createSSRApp(__sfc__)
 
@@ -95,13 +74,7 @@ export async function buildVue({
     stdin: {
       contents: `
       import { createSSRApp } from 'vue'
-      import appComp from 'vitural:${filename}.script.${compiledScript.lang}'
-      import { render } from 'vitural:${filename}.template.${compiledScript.lang}'
-      import 'vitural:${filename}.style.css'    
-
-      const __sfc__ = appComp
-
-      __sfc__.render = render
+      import __sfc__ from 'vitural:source.js'
       const app = createSSRApp(__sfc__)
       app.mount('#app')
 
@@ -111,11 +84,9 @@ export async function buildVue({
     },
     plugins: [VituralFilePlugin(vituralFile, resolveDir)],
     external: ['vue'],
+    format: 'iife',
     platform: 'browser',
     target: ['chrome58', 'firefox57', 'safari11'],
-    loader: {
-      '.css': 'css',
-    },
     minify: true,
     bundle: true,
     write: false,
