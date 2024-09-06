@@ -1,7 +1,6 @@
-import * as compiler from 'vue/compiler-sfc'
 import { build } from 'esbuild'
 import VituralFilePlugin from './bundle/plugins/vituralFile'
-import { createSSRApp, type Component } from 'vue'
+import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import * as Vue from 'vue'
 import defaultTemplate from './defaultTemplate'
@@ -10,6 +9,7 @@ type BuildOptions = {
   source: string
   filename: string
   resolveDir?: string
+  data?: Record<string, any>
   dependencies?: {
     [key: string]: string
   }
@@ -19,6 +19,7 @@ type BuildOptions = {
 export async function buildToHtml({
   source,
   filename,
+  data = {},
   resolveDir,
   dependencies,
   template,
@@ -32,6 +33,10 @@ export async function buildToHtml({
   } = dependencies || {}
 
   vituralFile[`vitural:source.js`] = source
+
+  const dataKeys = Object.keys(data)
+
+  const dataValues = dataKeys.map((key) => data[key])
 
   const buildServerRes = await build({
     stdin: {
@@ -59,6 +64,7 @@ export async function buildToHtml({
     'Vue',
     'createSSRApp',
     'renderToString',
+    ...dataKeys,
     `
     function require(path) {
       if (path === 'vue') {
@@ -68,7 +74,7 @@ export async function buildToHtml({
     ${buildServerRes.outputFiles[0].text}
     return buildServerSFC.default
     `
-  )(Vue, createSSRApp, renderToString)
+  )(Vue, createSSRApp, renderToString, ...dataValues)
 
   const buildClientsRes = await build({
     stdin: {

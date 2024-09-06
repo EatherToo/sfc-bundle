@@ -61,43 +61,73 @@ const htmlTemplateFactory = (
 describe('Dummy test', () => {
   it('test parse', async () => {
     const source = fs.readFileSync(
-      path.resolve(__dirname, './demo.vue'),
+      path.resolve(__dirname, './candy-1.js'),
       'utf-8'
     )
-    const vueTweet = fs.readFileSync(
-      path.resolve(__dirname, './vue-tweet.js'),
+    const css = fs.readFileSync(
+      path.resolve(__dirname, './candy-1.css'),
       'utf-8'
     )
-
-    const iconify = fs.readFileSync(
-      path.resolve(__dirname, './iconify.mjs'),
-      'utf-8'
-    )
-    // await buildVue({
-    //   source,
-    //   filename: 'demo.vue',
-    //   resolveDir: __dirname,
-    //   dependencies: {
-    //     'vue-tweet': vueTweet,
-    //     '@iconify/vue': iconify,
-    //   },
-    // })
-
-    const a = await buildSFCToComponent({
-      source,
-      filename: 'demo.vue',
-      cssSplit: true,
-    })
 
     const html = await buildToHtml({
-      source: a.code,
+      source: source,
       filename: 'demo.vue',
       resolveDir: __dirname,
+      data: {
+        window: {
+          __INITIAL_SHOP_INFO__: {
+            id: '',
+            shop_unique_name: '',
+            shop_name: 'rgrtghhyt',
+            shop_description: '',
+            img: '',
+            shop_logo: '',
+            benefits: '',
+            user_id: '',
+            show_goods_ids: '',
+            shop_home_page_id: '',
+            background_color: '',
+            button_colors: '',
+            whatsapp: '',
+            whatsapp_group: '',
+            create_time: '',
+            update_time: '',
+          },
+        },
+        localStorage: {
+          getItem: (k: string) => '',
+          setItem: (key: string, value: string) => {},
+          removeItem: (key: string) => {},
+          clear: () => {},
+          length: 0,
+          key: (index: string) => '',
+        },
+      },
       template: htmlTemplateFactory(
         'demo',
         'https://influx.eather.cn/favicon.ico',
         {
-          style: [`<style>${a.css}</style>`],
+          script: [
+            `<script>window.__INITIAL_SHOP_INFO__ = ${JSON.stringify({
+              id: '',
+              shop_unique_name: '',
+              shop_name: 'rgrtghhyt',
+              shop_description: '',
+              img: '',
+              shop_logo: '',
+              benefits: '',
+              user_id: '',
+              show_goods_ids: '',
+              shop_home_page_id: '',
+              background_color: '',
+              button_colors: '',
+              whatsapp: '',
+              whatsapp_group: '',
+              create_time: '',
+              update_time: '',
+            })};</script>`,
+          ],
+          style: [`<style>${css}</style>`],
         }
       ),
     })
